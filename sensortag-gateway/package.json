@@ -1,0 +1,14 @@
+{
+  "name": "sensortag-gateway",
+  "version": "0.1.0",
+  "description": "",
+  "main": "sensortagGateway.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "KIHARA Hideto",
+  "license": "MIT",
+  "dependencies": {
+    "sensortag": "^1.3.0"
+  }
+}

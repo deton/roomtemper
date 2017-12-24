@@ -1,0 +1,11 @@
+[Unit]
+Description=Read temperature from SensorTag BLE and post it to HTTP server
+After=network-online.target
+
+[Service]
+ExecStart=/home/root/sensortag-gateway/start-sensortag
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=default.target
