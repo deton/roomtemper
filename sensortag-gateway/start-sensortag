@@ -12,4 +12,4 @@ if ! hciconfig hci0 > /dev/null 2>&1 ; then
 fi
 
 cd /home/root/sensortag-gateway
-exec node sensortagGateway.js http://192.168.179.6:3000/
+exec node sensortagGateway.js

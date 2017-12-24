@@ -2,7 +2,7 @@ var http = require('http');
 var url = require('url');
 var SensorTag = require('sensortag');
 
-const SERVERURL = process.argv[2] || 'http://192.168.179.6:3000/';
+const SERVERURL = process.argv[2] || 'http://192.168.179.6/cgi-bin/roomtemper.cgi';
 
 console.log('push side button of sensortag to connect');
 discover();
@@ -34,23 +34,16 @@ function onDiscover(sensorTag) {
 }
 
 function readAndPost(sensorTag) {
-  var postdata = {irtemp: '', temp: '', humidity: ''};
-  postdata.date = (new Date()).toISOString();
-  readIrTemperature(function (error, objectTemperature, ambientTemperature) {
+  var postdata = {temp: '', humidity: ''};
+  postdata.date = (Date.now() / 1000).toFixed();
+  readHumitidy(function (error, temperature, humidity) {
     if (error) {
-      console.error('readIrTemperature(' + sensorTag + ') error ' + error);
+      console.error('readHumidity(' + sensorTag + ') error ' + error);
     } else {
-      postdata.irtemp = ambientTemperature.toFixed(1);
+      postdata.temp = temperature.toFixed(1);
+      postdata.humidity = humidity.toFixed(1);
     }
-    readHumitidy(function (error, temperature, humidity) {
-      if (error) {
-        console.error('readHumidity(' + sensorTag + ') error ' + error);
-      } else {
-        postdata.temp = temperature.toFixed(1);
-        postdata.humidity = humidity.toFixed(1);
-      }
-      httpPost(postdata);
-    });
+    httpPost(postdata);
   });
 
   function readIrTemperature(cb) {
@@ -95,7 +88,7 @@ function readAndPost(sensorTag) {
 }
 
 function httpPost(data) {
-  var body = data.date + ' ' + data.irtemp + ' ' + data.temp + ' ' + data.humidity;
+  var body = data.date + ':' + data.temp + ':' + data.humidity;
   console.log(body);
   var reqopt = url.parse(SERVERURL);
   reqopt.method = 'POST';
