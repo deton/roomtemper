@@ -29,7 +29,7 @@ function onDiscover(sensorTag) {
     }
     timer = setInterval(function () {
       readAndPost(sensorTag);
-    }, 60000);
+    }, 300000);
   });
 }
 
@@ -39,7 +39,12 @@ function readAndPost(sensorTag) {
   readHumitidy(function (error, temperature, humidity) {
     if (error) {
       console.error('readHumidity(' + sensorTag + ') error ' + error);
+      return;
     } else {
+      if (humidity < 0 || humidity > 100) {
+        console.warn('low battery?');
+        return;
+      }
       postdata.temp = temperature.toFixed(1);
       postdata.humidity = humidity.toFixed(1);
     }
