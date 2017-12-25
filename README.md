@@ -61,6 +61,3 @@ rrdtool create temphumid.rrd DS:temper:GAUGE:1200:U:U DS:humidity:GAUGE:1200:U:U
   その間のデータがサーバ側に送られないままになる。
   再接続されたら、切断中のデータをまとめて送る機能を追加する。
 * CGIスクリプトを書き直す(現状のshell scriptは適当すぎるので)
-* 1分間隔でなくrrdtool側のデータ構成に合わせて5分間隔にする。
-  (rrdtool側設定は、昔作ったGuruPlug+[USB接続温度センサ](https://www.amazon.co.jp/dp/B004FI1570)用のものの流用なので)
-
