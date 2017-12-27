@@ -3,6 +3,9 @@ var url = require('url');
 var SensorTag = require('sensortag');
 
 const SERVERURL = process.argv[2] || 'http://192.168.179.6/cgi-bin/roomtemper.cgi';
+const INTERVAL = 5 * 60000; // 5 [min]
+const INTERVAL_NIGHT = 30 * 60000; // 30 [min]
+var timer = null;
 
 console.log('push side button of sensortag to connect');
 discover();
@@ -16,21 +19,40 @@ function onDiscover(sensorTag) {
 
   sensorTag.on('disconnect', function() {
     console.log('disconnected! ' + sensorTag);
-    clearInterval(timer);
+    clearTimeout(timer);
+    timer = null;
     discover();
   });
 
-  var timer;
   console.log('connectAndSetUp');
   sensorTag.connectAndSetUp(function (error) {
     if (error) {
       console.error('connectAndSetup(' + sensorTag + ') error ' + error);
       return;
     }
-    timer = setInterval(function () {
-      readAndPost(sensorTag);
-    }, 300000);
+    timer = setTimeout(function () {
+      onTimeout(sensorTag);
+    }, INTERVAL);
   });
+}
+
+function onTimeout(sensorTag) {
+  if (timer === null) {
+    return;
+  }
+  readAndPost(sensorTag);
+  var interval = isWorktime() ? INTERVAL : INTERVAL_NIGHT;
+  timer = setTimeout(function () {
+    onTimeout(sensorTag);
+  }, interval);
+}
+
+function isWorktime() {
+  var now = new Date();
+  var hour = now.getHours();
+  var weekday = now.getDay();
+  // monday(1) to friday(5)
+  return weekday >= 1 && weekday < 6 && hour >= 8 && hour < 21
 }
 
 function readAndPost(sensorTag) {
