@@ -1,0 +1,11 @@
+{
+  "name": "enocean-gateway",
+  "version": "0.1.0",
+  "description": "",
+  "main": "enoceanGateway.js",
+  "author": "KIHARA Hideto",
+  "license": "MIT",
+  "dependencies": {
+    "node-enocean-utils": "^0.1.1"
+  }
+}
