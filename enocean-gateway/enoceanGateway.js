@@ -17,28 +17,22 @@ enocean.teach({
   "name": "STM250J Door Sensor"
 });
 
-var isCloseCurrent = false;
-
 enocean.startMonitor({
   'path': '/dev/ttyUSB0'
 }).then(function (gateway) {
   enocean.on('data-known', function (telegram) {
     if (telegram.message.eep == 'D5-00-01') { // STM250J Door Sensor
       var isClose = (telegram.message.value.contact == 1);
-      if (isClose != isCloseCurrent) {
-        isCloseCurrent = isClose;
-        var now = new Date();
-        var status;
-        if (isClose) {
-          status = 'close';
-        } else {
-          status = 'open';
-        }
-        var body = Date.now() + ':' + 'win3' + ':' + status;
-        console.log(body);
-        if (WINDOWPUBLISHURL) {
-          httpPost(WINDOWPUBLISHURL, body);
-        }
+      var status;
+      if (isClose) {
+        status = 'close';
+      } else {
+        status = 'open';
+      }
+      var body = Date.now() + ':' + 'win3' + ':' + status;
+      console.log(body);
+      if (WINDOWPUBLISHURL) {
+        httpPost(WINDOWPUBLISHURL, body);
       }
     } else if (telegram.message.eep == 'A5-02-05') { // STM431J Temperature Sensor
 

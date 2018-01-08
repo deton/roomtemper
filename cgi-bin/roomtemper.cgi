@@ -11,7 +11,7 @@ fi
 #rrdtool update /var/www/temphumid.rrd "$rrddata"
 echo "$tag:$rrddata" >> /tmp/roomtemper.log
 
-curl -s 'http://localhost:8086/write?db=temper' --data-binary "temperature,id=$tag value=$temp ${timestamp}000000000"
+curl -s 'http://localhost:8086/write?db=roomdb' --data-binary "temperature,sensor=$tag value=$temp ${timestamp}000000000"
 if [ ! -z "$humid" ]; then
-	curl -s 'http://localhost:8086/write?db=humid' --data-binary "humidity,id=$tag value=$humid ${timestamp}000000000"
+	curl -s 'http://localhost:8086/write?db=roomdb' --data-binary "humidity,sensor=$tag value=$humid ${timestamp}000000000"
 fi
