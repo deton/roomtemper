@@ -44,7 +44,7 @@ enocean.startMonitor({
 
       var date = (Date.now() / 1000).toFixed();
       var temp = telegram.message.value.temperature;
-      var body = date + ':' + temp;
+      var body = 'STM431J_01:' + date + ':' + temp;
       console.log(body);
       httpPost(SERVERURL, body);
     }
