@@ -2,7 +2,8 @@ const http = require('http');
 const Url = require('url');
 const enocean = require('node-enocean-utils');
 
-const SERVERURL = process.argv[2] || 'http://192.168.179.6/cgi-bin/roomtemper.cgi';
+// influxdb
+const SERVERURL = process.argv[2] || 'http://192.168.179.6:8086/write?db=roomdb'; 
 // url to publish window status change event
 const WINDOWPUBLISHURL = process.argv[3];
 
@@ -35,10 +36,8 @@ enocean.startMonitor({
         httpPost(WINDOWPUBLISHURL, body);
       }
     } else if (telegram.message.eep == 'A5-02-05') { // STM431J Temperature Sensor
-
-      var date = (Date.now() / 1000).toFixed();
       var temp = telegram.message.value.temperature;
-      var body = 'STM431J_01:' + date + ':' + temp;
+      var body = 'temperature,sensor=STM431J_01 value=' + temp;
       console.log(body);
       httpPost(SERVERURL, body);
     }
