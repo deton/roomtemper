@@ -1,29 +1,50 @@
 // Description
-//   A hubot script that returns room temperature and humidity
+//   A hubot script that returns room temperature and window open/close status
 //
 // Commands:
-//   air - return room temperature and humidity
+//   air - return room temperature and window open/close status
 //
 // Author:
 //   KIHARA Hideto <deton@m1.interq.or.jp>
 
-const child_process = require('child_process');
-
 module.exports = function (robot) {
   robot.hear(/^air/i, function (msg) {
-    child_process.exec('tail -1 /tmp/roomtemper.log', function (error, stdout, stderr) {
-      if (error) {
+    var q = encodeURIComponent("SELECT value FROM temperature WHERE sensor='STM431J_01' LIMIT 1; SELECT value FROM window WHERE sensor='win7' LIMIT 1");
+    var req = robot.http('http://localhost:8086/query?epoch=ms&db=roomdb&q=' + q).get();
+    req(function (err, res, body) {
+      if (err) {
         robot.logger.warning('Failed to get room temperature:' + error);
         return;
       }
-      var ar = stdout.replace(/\n/, '').split(':');
-      var time = new Date(parseInt(ar[0] + '000', 10));
-      var now = new Date();
-      if (now - time > 1800000) { // 30 min
+      var json = JSON.parse(body);
+      // {"results":[
+      //   {"series":[{"name":"temperature","columns":["time","value"],"values":[[1515210895000,10.7]]}]},
+      //   {"series":[{"name":"window","columns":["time","value"],"values":[[1515399747622,0]]}]}]}
+      var tempdata = json.results[0].series[0].values[0];
+      var windata = json.results[1].series[0].values[0];
+   
+      if (isOld(tempdata[0])) {
         robot.logger.warning('too old data:' + time);
         return;
       }
-      msg.send('Temperature: ' + ar[1] + '℃, Humidity: ' + ar[2] + '% [SensorTag at S307]');
+      var m = 'Temperature: ' + tempdata[1] + '℃ [STM431J at S307]';
+      if (!isOld(windata[0])) {
+        if (windata[1] == 1) {
+          m += ' (window is OPEN)';
+        } else {
+          m += ' (window is close)';
+        }
+      }
+      msg.send(m);
     });
   });
+
+  function isOld(ms) {
+    var time = new Date(ms);
+    var now = new Date();
+    if (now - time > 1800000) { // 30 min
+      return true;
+    }
+    return false;
+  }
 };
