@@ -9,7 +9,7 @@
 
 module.exports = function (robot) {
   robot.hear(/^air/i, function (msg) {
-    var q = encodeURIComponent("SELECT value FROM temperature WHERE sensor='STM431J_01' LIMIT 1; SELECT value FROM window WHERE sensor='win7' LIMIT 1");
+    var q = encodeURIComponent("SELECT LAST(value) FROM temperature WHERE sensor='STM431J_01'; SELECT LAST(value) FROM window WHERE sensor='win7'");
     var req = robot.http('http://localhost:8086/query?epoch=ms&db=roomdb&q=' + q).get();
     req(function (err, res, body) {
       if (err) {
@@ -18,8 +18,8 @@ module.exports = function (robot) {
       }
       var json = JSON.parse(body);
       // {"results":[
-      //   {"series":[{"name":"temperature","columns":["time","value"],"values":[[1515210895000,10.7]]}]},
-      //   {"series":[{"name":"window","columns":["time","value"],"values":[[1515399747622,0]]}]}]}
+      //   {"series":[{"name":"temperature","columns":["time","last"],"values":[[1515210895000,10.7]]}]},
+      //   {"series":[{"name":"window","columns":["time","last"],"values":[[1515399747622,0]]}]}]}
       var tempdata = json.results[0].series[0].values[0];
       var windata = json.results[1].series[0].values[0];
    
