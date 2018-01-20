@@ -2,7 +2,8 @@ var http = require('http');
 var url = require('url');
 var SensorTag = require('sensortag');
 
-const SERVERURL = process.argv[2] || 'http://192.168.179.6/cgi-bin/roomtemper.cgi';
+// influxdb
+const SERVERURL = process.argv[2] || 'http://192.168.179.6:8086/write?db=roomdb'; 
 const INTERVAL = 10 * 60000; // 10 [min]
 const INTERVAL_NIGHT = 60 * 60000; // 60 [min]
 var timer = null;
@@ -57,7 +58,6 @@ function isWorktime() {
 
 function readAndPost(sensorTag) {
   var postdata = {temp: '', humidity: ''};
-  postdata.date = (Date.now() / 1000).toFixed();
   readHumitidy(function (error, temperature, humidity) {
     if (error) {
       console.error('readHumidity(' + sensorTag + ') error ' + error);
@@ -115,7 +115,8 @@ function readAndPost(sensorTag) {
 }
 
 function httpPost(data) {
-  var body = 'SensorTag:' + data.date + ':' + data.temp + ':' + data.humidity;
+  var body = 'temperature,sensor=CC2541DK_01 value=' + data.temp
+      + '\nhumidity,sensor=CC2541DK_01 value=' + data.humidity;
   console.log(body);
   var reqopt = url.parse(SERVERURL);
   reqopt.method = 'POST';
