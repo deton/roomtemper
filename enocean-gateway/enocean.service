@@ -1,0 +1,11 @@
+[Unit]
+Description=Receive temperature from EnOcean STM431J and post it to HTTP server
+After=network-online.target
+
+[Service]
+ExecStart=/home/root/enocean-gateway/start-enocean
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=default.target
