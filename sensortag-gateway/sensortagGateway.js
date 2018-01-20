@@ -3,8 +3,8 @@ var url = require('url');
 var SensorTag = require('sensortag');
 
 const SERVERURL = process.argv[2] || 'http://192.168.179.6/cgi-bin/roomtemper.cgi';
-const INTERVAL = 5 * 60000; // 5 [min]
-const INTERVAL_NIGHT = 30 * 60000; // 30 [min]
+const INTERVAL = 10 * 60000; // 10 [min]
+const INTERVAL_NIGHT = 60 * 60000; // 60 [min]
 var timer = null;
 
 console.log('push side button of sensortag to connect');
@@ -115,7 +115,7 @@ function readAndPost(sensorTag) {
 }
 
 function httpPost(data) {
-  var body = data.date + ':' + data.temp + ':' + data.humidity;
+  var body = 'SensorTag:' + data.date + ':' + data.temp + ':' + data.humidity;
   console.log(body);
   var reqopt = url.parse(SERVERURL);
   reqopt.method = 'POST';

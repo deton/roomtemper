@@ -2,7 +2,8 @@ const http = require('http');
 const Url = require('url');
 const enocean = require('node-enocean-utils');
 
-const SERVERURL = process.argv[2] || 'http://192.168.179.6/cgi-bin/roomtemper.cgi';
+// influxdb
+const SERVERURL = process.argv[2] || 'http://192.168.179.6:8086/write?db=roomdb'; 
 // url to publish window status change event
 const WINDOWPUBLISHURL = process.argv[3];
 
@@ -17,34 +18,26 @@ enocean.teach({
   "name": "STM250J Door Sensor"
 });
 
-var isCloseCurrent = false;
-
 enocean.startMonitor({
   'path': '/dev/ttyUSB0'
 }).then(function (gateway) {
   enocean.on('data-known', function (telegram) {
     if (telegram.message.eep == 'D5-00-01') { // STM250J Door Sensor
       var isClose = (telegram.message.value.contact == 1);
-      if (isClose != isCloseCurrent) {
-        isCloseCurrent = isClose;
-        var now = new Date();
-        var status;
-        if (isClose) {
-          status = 'close';
-        } else {
-          status = 'open';
-        }
-        var body = Date.now() + ':' + 'win3' + ':' + status;
-        console.log(body);
-        if (WINDOWPUBLISHURL) {
-          httpPost(WINDOWPUBLISHURL, body);
-        }
+      var status;
+      if (isClose) {
+        status = 'close';
+      } else {
+        status = 'open';
+      }
+      var body = Date.now() + ':' + 'win3' + ':' + status;
+      console.log(body);
+      if (WINDOWPUBLISHURL) {
+        httpPost(WINDOWPUBLISHURL, body);
       }
     } else if (telegram.message.eep == 'A5-02-05') { // STM431J Temperature Sensor
-
-      var date = (Date.now() / 1000).toFixed();
       var temp = telegram.message.value.temperature;
-      var body = date + ':' + temp;
+      var body = 'temperature,sensor=STM431J_01 value=' + temp;
       console.log(body);
       httpPost(SERVERURL, body);
     }
