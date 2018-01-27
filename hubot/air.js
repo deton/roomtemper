@@ -42,7 +42,7 @@ module.exports = function (robot) {
   function isOld(ms) {
     var time = new Date(ms);
     var now = new Date();
-    if (now - time > 1800000) { // 30 min
+    if (now - time > 2400000) { // 40 min
       return true;
     }
     return false;
