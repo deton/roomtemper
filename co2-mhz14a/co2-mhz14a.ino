@@ -3,6 +3,7 @@
 HardwareSerial serialCO2(2);
 
 // GROVE SHT31 Temp Humi Sensor
+#include <Wire.h>
 #include "SHT31.h"
 SHT31 sht31 = SHT31();
 
@@ -28,7 +29,6 @@ int counter = 0;
 void setup() {
     Serial.begin(115200);
     serialCO2.begin(9600);
-    sht31.begin();
     delay(10);
 
     Serial.println();
@@ -65,6 +65,8 @@ void setup() {
 void loop() {
     delay(5*60*1000); // TODO: use deep sleep
 
+    sht31.begin(); // XXX: try to avoid freezing ESP32
+    delay(100);
     float temp = sht31.getTemperature();
     float hum = sht31.getHumidity();
     Serial.print(temp); Serial.print(",");
@@ -72,9 +74,6 @@ void loop() {
 
     int co2 = getCO2();
     Serial.println(co2);
-    if (co2 == 0) {
-        return;
-    }
 
     if (WiFi.status() == WL_CONNECTED) {
         counter = 0;
@@ -101,9 +100,12 @@ void loop() {
     http.setTimeout(2 * HTTPCLIENT_DEFAULT_TCP_TIMEOUT);
     http.begin(url);
     //Serial.print("Connecting to website: ");
-    String postbody("co2,sensor=MHZ14A_01 value=" + String(co2)
-            + "\nhumidity,sensor=SHT31_01 value=" + String(hum)
-            + "\ntemperature,sensor=SHT31_01 value=" + String(temp));
+    String postbody;
+    if (co2 > 0) {
+        postbody += "co2,sensor=MHZ14A_01 value=" + String(co2) + "\n";
+    }
+    postbody += "humidity,sensor=SHT31_01 value=" + String(hum)
+             + "\ntemperature,sensor=SHT31_01 value=" + String(temp);
     //Serial.println(postbody);
     //http.addHeader("Content-Type", "text/plain");
     int httpCode = http.POST(postbody);
