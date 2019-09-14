@@ -10,7 +10,12 @@ const WINDOWPUBLISHURL = process.argv[3];
 enocean.teach({
   'id'  : '00 00 04 00 FE EF', // XXX: change this
   'eep' : 'A5-02-05',
-  'name': 'STM431J Temperature Sensor'
+  'name': 'STM431J_01'
+});
+enocean.teach({
+  'id'  : '00 00 04 01 2E FC', // XXX: change this
+  'eep' : 'A5-02-05',
+  'name': 'STM431J_02'
 });
 enocean.teach({
   "id"  : "00 00 04 00 E5 9E", // XXX: change this
@@ -37,7 +42,8 @@ enocean.startMonitor({
       }
     } else if (telegram.message.eep == 'A5-02-05') { // STM431J Temperature Sensor
       var temp = telegram.message.value.temperature;
-      var body = 'temperature,sensor=STM431J_01 value=' + temp;
+      var name = telegram.message.device.name;
+      var body = 'temperature,sensor=' + name + ' value=' + temp;
       console.log(body);
       httpPost(SERVERURL, body);
     }
